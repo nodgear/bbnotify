@@ -1,5 +1,5 @@
 <div align="center" id="top">
-  <img src="./app.png" alt="Bbnotify" width="30% />
+  <img src="./app.png" alt="Bbnotify" width="30%"/>
 
   &#xa0;
 

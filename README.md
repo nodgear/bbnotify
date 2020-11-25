@@ -1,6 +1,5 @@
-<<<<<<< HEAD
-<div align="center" id="top"> 
-  <img src="./.github/app.gif" alt="Bbnotify" />
+<div align="center" id="top">
+  <img src="./.github/app.png" alt="Bbnotify" />
 
   &#xa0;
 

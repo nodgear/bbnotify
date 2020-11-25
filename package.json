@@ -16,8 +16,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "dev": "nodemon ./app.js",
-    "start": "start ./app.js"
+    "dev": "nodemon ./app.js development",
+    "start": "node ./app.js production"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"

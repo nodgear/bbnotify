@@ -45,9 +45,9 @@ Describe your project
 
 ## :sparkles: Features ##
 
-:heavy_check_mark: Feature 1;\
-:heavy_check_mark: Feature 2;\
-:heavy_check_mark: Feature 3;
+:heavy_check_mark: Automatically logs into BlackBoard and gathers course information;\
+:heavy_check_mark: Sends todo's and homerworks to discord;\
+:heavy_check_mark: WIP: Gathers homework files (PDF's, DOCX's) and lists on discord with a direct link;
 
 ## :rocket: Technologies ##
 

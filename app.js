@@ -7,7 +7,7 @@ dotenv.config();
 // requiring Controllers:
 const discordCtrl = require('./controllers/discord.js');
 const logger = require('./controllers/logger.js');
-
+const mode = process.argv[2] === 'production'
 
 function countEntries(object) {
     let count = 0;
@@ -19,7 +19,7 @@ function countEntries(object) {
 };
 
 (async () => {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: mode });
     const page = await browser.newPage();
 
     await page.setViewport({

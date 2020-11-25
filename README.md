@@ -1,5 +1,5 @@
 <div align="center" id="top">
-  <img src="./.github/app.png" alt="Bbnotify" />
+  <img src="./app.png" alt="Bbnotify" />
 
   &#xa0;
 

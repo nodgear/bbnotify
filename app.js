@@ -1,8 +1,23 @@
 const puppeteer = require('puppeteer');
 const dotenv = require('dotenv');
+const { evaluate2 } = require('puppeteer-evaluate2');
+
 dotenv.config();
 
 // requiring Controllers:
+const discordCtrl = require('./controllers/discord.js');
+const logger = require('./controllers/logger.js');
+
+
+function countEntries(object) {
+    let count = 0;
+    Object.keys(object).map(function(prop) {
+        count+= object[prop].length;
+    });
+
+    return count
+};
+
 (async () => {
     const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
@@ -12,142 +27,82 @@ dotenv.config();
         height: 900
     });
 
+    logger.log(`Navigating to ${process.env.SOURCE}`)
+
     await page.goto(process.env.SOURCE)
         .catch((e) => {
-
-            console.log(`Trying to get navigate to ${process.env.SOURCE} and failed.`)
+            logger.error(`Couldn't navigate to ${process.env.SOURCE}`)
+            process.exit(0);
         });
 
-    // Blackboard may take ages to load, let's wait
+    logger.ready('Page loaded');
+
     await page.waitForSelector('#agree_button', {timeout:process.env.TIMEOUT})
         .then(() => {
             page.click('#agree_button')
         })
         .catch((e) => {
-            console.log(`Timed out while waiting for privacy agreement.\n Kept going.`)
+            logger.error(`Timed out for agreement modal`)
         });
 
     const userInput = await page.$('input#user_id')
         .catch((e) => {
-            console.log("Can't find login, if you logged manually, please restart", e)
+            logger.error("No login input found");
+            process.exit(0);
         });
 
     const passInput = await page.$('input#password')
         .catch((e) => {
-            console.log("The DOM changed, please check the elementQuery");
+            logger.error("No password input found");
+            process.exit(0);
         });
 
-    if ( ( userInput == null) || (passInput == null ) ) {
-        process.exit(0);
+    logger.log('Inserting login data');
+
+    await userInput.click();
+    await userInput.type(process.env.LOGIN);
+
+    await passInput.click();
+    await passInput.type( process.env.PASSWORD);
+
+    const loginButton = await page.$('input#entry-login');
+    await loginButton.click();
+
+    logger.log('Waiting for login response');
+
+    const navigationPromise = await page.waitForNavigation();
+
+    const loginFail = await page.$('div#loginErrorMessage'). then (res => !!res);
+
+    if (loginFail) {
+        let error = await page.evaluate(() => {
+            return document.querySelector('div#loginErrorMessage').textContent || 'No error message or invalid element.'
+        });
+
+        logger.error(error);
+        process.exit(0)
+    } else {
+        logger.ready("Logged in!")
     }
 
-    await page.focus('input#user_id');
-    await page.type('input#user_id', process.env.LOGIN);
-
-    await page.focus('input#password');
-    await page.type('input#password', process.env.PASSWORD);
-
-    await page.click('input#entry-login');
+    logger.log('Waiting for dashboard initialization')
 
     await page.waitForSelector('button[ng-class]');
     await page.goto(`${process.env.SOURCE}/ultra/stream`);
 
+    logger.ready('Dashboard initialized')
+    logger.log("Fetching course data")
+
     await page.waitForSelector('div.js-upcomingStreamEntries > ul');
+    const homeworkData = await evaluate2(page, './controllers/homework.js')
 
-    const toDeliver = await page.evaluate( () => {
-        const element = 'div.js-upcomingStreamEntries > ul'
-        const upComming = document.querySelector(element);
-        const items = upComming.getElementsByTagName('li');
+    logger.ready('Built course data')
 
-        let courses = [];
+    discordCtrl(homeworkData[0], "Hoje", "Trabalhos a serem entregues", true)
+    discordCtrl(homeworkData[1], "Próximos", "Trabalhos futuros", false, "#42a4f5")
 
-        for (let i = 0; i < items.length; i++ ) {
-            let li = items[i]
-            let course = li.querySelector("[analytics-id='stream.entry.course']").textContent;
-            let homeWork = li.querySelector("a[analytics-id='stream.entry.title']").textContent;
-            let dueDate = li.querySelector("span.due-date > bb-translate > bdi").textContent;
-            let postDate = li.querySelector("div.js-split-datetime > span.date").textContent;
+    logger.ready(`BB Notify finished; Sent a total of ` + countEntries(homeworkData) + ` entries`);
 
-            // Who did this?
-            course = course.replace("Data de entrega:", "");
-            homeWork = homeWork.replace("Data de entrega:", "")
-            homeWork = homeWork.replace("A ser entregue hoje:", "")
-
-            courses.push({
-                course: course,
-                title: homeWork,
-                delivery: dueDate,
-                posted: postDate
-            });
-        };
-
-        return courses
-    });
-
-
-    await page.waitForSelector('div.js-todayStreamEntries > ul');
-
-    const addedToday = await page.evaluate( () => {
-        const element = 'div.js-todayStreamEntries > ul'
-        const upComming = document.querySelector(element);
-        const items = upComming.getElementsByTagName('li');
-
-        let courses = [];
-
-        for (let i = 0; i < items.length; i++ ) {
-            let li = items[i]
-            let course = li.querySelector("[analytics-id='stream.entry.course']").textContent;
-            let homeWork = li.querySelector("a[analytics-id='stream.entry.title']").textContent;
-            let dueDate = li.querySelector("span.due-date > bb-translate > bdi").textContent;
-            let postDate = li.querySelector("div.js-split-datetime > span.date").textContent;
-
-            // Who did this?
-            course = course.replace("Data de entrega:", "");
-            homeWork = homeWork.replace("Data de entrega:", "")
-            homeWork = homeWork.replace("A ser entregue hoje:", "")
-
-            courses.push({
-                course: course,
-                title: homeWork,
-                delivery: dueDate,
-                posted: postDate
-            });
-        };
-
-        return courses
-    });
-
-
-
-    const embedToday = new Discord.MessageEmbed()
-	.setTitle('Hoje')
-    .setDescription('Black Board UniFTC')
-    .setColor('#ff3030')
-    .setAuthor("Nodge")
-    .addFields( buildEmbed(addedToday) )
-    .setTimestamp()
-    .setThumbnail('https://i.imgur.com/0nbLwdq.png')
-    .setFooter('Botentinha BlackBoard :)');
-
-    webhookClient.send('@everyone', {
-        username: 'Botentinha',
-        avatarURL: 'https://i.imgur.com/0nbLwdq.png',
-        embeds: [embedToday]
-    });
-
-    const embedToDeliver = new Discord.MessageEmbed()
-	.setTitle('Próximas')
-    .setDescription('Black Board UniFTC')
-    .setColor('#00ddff')
-    .setAuthor("Nodge")
-    .addFields( buildEmbed(toDeliver) )
-    .setTimestamp()
-    .setThumbnail('https://i.imgur.com/0nbLwdq.png')
-    .setFooter('Botentinha BlackBoard :)');
-
-
-
-    // TODO: Remove awaits using promise global => resolve
 })();
 
 // console.log(fetchData)

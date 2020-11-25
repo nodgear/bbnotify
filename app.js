@@ -99,13 +99,7 @@ function countEntries(object) {
     logger.ready('Built course data')
 
     discordCtrl(homeworkData[0], "Hoje", "Trabalhos a serem entregues", true)
-    .catch(function(e){
-        logger.error(`Error in discord controller for ${"Hoje"}`)
-    })
     discordCtrl(homeworkData[1], "Próximos", "Trabalhos futuros", false, "#42a4f5")
-    .catch(function(e){
-        logger.error(`Error in discord controller for ${"Hoje"}`)
-    })
 
     logger.ready(`BB Notify finished; Sent a total of ` + countEntries(homeworkData) + ` entries`);
 

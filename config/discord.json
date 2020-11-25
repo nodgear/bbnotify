@@ -1,0 +1,9 @@
+{
+    "discordHookID"   : "PASTE YOUR DISCORD WEBHOOK ID HERE",
+    "discordToken"    : "PASTE YOUR DISCORD WEBHOOK TOKEN HERE",
+    "discordPictures" : [
+        "https://i.imgur.com/yRKhkR2.png"
+    ],
+    "discordName"     : "YOUR BOT NAME",
+    "institutionLogo" : "https://i.imgur.com/q6qO2IH.png"
+}

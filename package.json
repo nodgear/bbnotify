@@ -1,0 +1,21 @@
+{
+  "dependencies": {
+    "discord.js": "^12.5.0",
+    "dotenv": "^8.2.0",
+    "puppeteer": "^5.5.0"
+  },
+  "name": "bbnotify",
+  "version": "1.0.0",
+  "description": "BlackBoard Collaboration tool that assists students by reminding then of their tasks!",
+  "main": "app.js",
+  "repository": "https://github.com/nodgear/bbnotify",
+  "author": "Nodge",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}

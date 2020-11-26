@@ -12,10 +12,17 @@ export default function() {
 
     for (let i = 0; i < tdItems.length; i++ ) {
         let li = tdItems[i]
-        let course = li.querySelector("[analytics-id='stream.entry.course']").textContent;
-        let homeWork = li.querySelector("a[analytics-id='stream.entry.title']").textContent;
-        let dueDate = li.querySelector("span.due-date > bb-translate > bdi").textContent;
-        let postDate = li.querySelector("div.js-split-datetime > span.date").textContent;
+
+        let course = li.querySelector("[analytics-id='stream.entry.course']");
+        let homeWork = li.querySelector("a[analytics-id='stream.entry.title']");
+        let dueDate = li.querySelector("span.due-date > bb-translate > bdi");
+        let postDate = li.querySelector("div.js-split-datetime > span.date");
+
+        course = course? course.textContent : "UniFTC";
+        homeWork = homeWork ? homeWork.textContent : "Não especificado";
+        dueDate = dueDate ? dueDate.textContent : "Não especificado";
+        postDate = postDate ? postDate.textContent : "???";
+
 
         // Who did this on bb?
         course = course.replace("Data de entrega:", "");
@@ -32,10 +39,15 @@ export default function() {
 
     for (let i = 0; i < ntItems.length; i++ ) {
         let li = ntItems[i]
-        let course = li.querySelector("[analytics-id='stream.entry.course']").textContent;
-        let homeWork = li.querySelector("a[analytics-id='stream.entry.title']").textContent;
-        let dueDate = li.querySelector("span.due-date > bb-translate > bdi").textContent;
-        let postDate = li.querySelector("div.js-split-datetime > span.date").textContent;
+        let course = li.querySelector("[analytics-id='stream.entry.course']");
+        let homeWork = li.querySelector("a[analytics-id='stream.entry.title']");
+        let dueDate = li.querySelector("span.due-date > bb-translate > bdi");
+        let postDate = li.querySelector("div.js-split-datetime > span.date");
+
+        course = course? course.textContent : "UniFTC";
+        homeWork = homeWork ? homeWork.textContent : "Não especificado";
+        dueDate = dueDate ? dueDate.textContent : "Não especificado";
+        postDate = postDate ? postDate.textContent : "???";
 
         // Who did this on bb?
         course = course.replace("Data de entrega:", "");

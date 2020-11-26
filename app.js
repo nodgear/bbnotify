@@ -103,6 +103,7 @@ function countEntries(object) {
 
     logger.ready(`BB Notify finished; Sent a total of ` + countEntries(homeworkData) + ` entries`);
 
+    await browser.close()
 })();
 
 // console.log(fetchData)
